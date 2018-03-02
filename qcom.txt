@@ -1,0 +1,5 @@
+∑¥±‡“ÎDTS
+~/qcom/8909_src/Q1131_msm8909/android/out/target/product/msm8909/obj/KERNEL_OBJ/scripts/dtc$ ./dtc -I dtb -O dts -o 
+../../../../../../../../temp.dts  ../../arch/arm/boot/dts/msm8909-mtp.dtb
+
+
