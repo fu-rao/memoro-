@@ -1,0 +1,68 @@
+how_the_dts_is_choosed_for_kernel
+可以参考高通文档 kba-170704230939
+
+SBL1
+boot_images/core/boot/secboot3/hw/msm8909/boot_cdt_array.c
+在里定义 config_data_table
+		0x03, 0x08, 0x01, 0x00, 0x05, 0x00,
+SBL1 log:
+B -    178760 - CDT version:3,Platform ID:8,Major ID:1,Minor ID:0,Subtype:5
+结构体定义产考文档：
+see 80-N3411-1_E_Software_Configuration_Data_Table_ Application_Note.pdf
+
+2.1.3.1 CDB0 – Platform ID
+CDB0 is fixed to be a 4 or 5-byte platform ID value.
+? Byte 0 (the most significant byte) represents the version number. From MSM8974 onwards,
+value 0x3 is used.
+? Byte 1 represents the platform type. It has the following values:
+? 0x0 – Unknown or unprogrammed
+? 0x1 – Core development platform (CDP)
+? 0x2 – Form factor accurate (FFA)
+? 0x3 – Forward looking user interface device (FLUID)
+? 0x4 – Fused
+? 0x5 – Reserved for OEMs
+? 0x7 – MTP for MDM chipset
+? 0x8 – MTP for MSM/APQ
+? 0x9 – Large qualcomm user interface device (LiQUID)
+? 0x19 – Automotive development platform (ADP)
+? Byte 2 is the hardware major version number.
+? Byte 3 is the hardware minor version number.
+? Byte 4 is the fused platform flavor number.
+For example, a Circiut switched fallback (CSFB) device would have platform ID of 0x02, 0x02,
+0x01, 0x0, 0x01. A Simultaneous voice and LTE (SVLTE) type II device would have platform ID
+of 0x02, 0x02, 0x01, 0x0, 0x03.
+
+ABOOT
+bootable/bootloader/lk/platform/msm_shared$ vi dev_tree.c
+
+static struct dt_entry *platform_dt_match_best(struct dt_entry_node *dt_list)
+
+[1930] [1930] Best match DTB tags 300/00000008/0x00000105/0/1000b/0/0/0/907ac9f8/2aa08
+[1940] [1940] Using pmic info 0x1000b/0x0/0x0/0x0 for device 0x2000b/0x0/0x0/0x0
+
+KERNEL
+kernel/arch/arm/boot/dts/qcom$ vi msm8909w-wtp.dts
+
+/ {
+        model = "Qualcomm Technologies, Inc. MSM8909W-PM8916 MTP";
+        compatible = "qcom,msm8909-mtp", "qcom,msm8909", "qcom,mtp";
+        qcom,msm-id =   <245 0>,
+                        <258 0>,
+                        <275 0>,
+                        <300 0>;
+        qcom,board-id= <8 0x105>;
+};
+
+
+[    0.000000] Initializing cgroup subsys cpu
+[    0.000000] Initializing cgroup subsys cpuacct
+[    0.000000] Linux version 3.18.24 (furao@bdsvr4-S2600CP) (gcc version 4.9 20150123 (prerelease) (GCC) ) #3 SMP 
+PREEMPT Thu Dec 28 15:53:23 CST 2017
+[    0.000000] CPU: ARMv7 Processor [410fc075] revision 5 (ARMv7), cr=10c5387d
+[    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+[    0.000000] Machine model: Qualcomm Technologies, Inc. MSM8909W-PM8916 MTP
+
+补充
+用XML生成CDT.BIN
+python cdt_generator.py cdt_array.xml cdt_array.bin
+
