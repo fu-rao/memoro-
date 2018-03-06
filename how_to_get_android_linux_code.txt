@@ -1,0 +1,48 @@
+
+用APE-GET安装软件包
+$ sudo apt-get install git-core gnupg flex bison gperf build-essential
+zip curl zlib1g-dev libc6-dev lib32ncurses5-dev ia32-libs x11proto-core-dev libx11-dev lib32readline5-dev lib32z-dev libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc
+
+系统默认SHELL /bin/sh调用 BASH
+
+	sudo dpkg-reconfigure dash 回答NO
+
+	sudo rm /bin/sh
+	sudo ln -s /bin/bash /bin/sh
+Windows共享SAMBA配置
+	sudo apt-get install samba system-config-samba
+	配置
+	System->Administration->Samba
+		preferences->server settings:
+		vmgroup, security=user authentication
+		encrypt pw=yes, guest accnt=no guest accnt
+		add share directory=/, share name=root, description=root directory
+安装JDK
+	sudo add-apt-repository ??deb http://archive.canonical.com/ lucid partner??
+	sudo apt-get update
+	sudo apt-get install sun-java6-jdk
+	ANDROID L 版本安装 JDK7
+	# get package openjdk-7-jdk
+	sudo apt-get install openjdk-7-jdk
+安装REPO
+	下载脚本
+	$ curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo>~/bin/repo
+	repo属性修改
+	$ chmod a+x ~/bin/repo
+软件编码规则
+	<PL_Image>-<Version>-<Chipset>
+从CAF下载开源ANDROID HLOS
+	网站https://www.codeaurora.org/xwiki/bin/QAEP/release
+	下载代码
+	$ repo init -u git://codeaurora.org/platform/manifest.git -b release -m <build_id>.xml --repo-url=git://codeaurora.org/tools/repo.git 
+	--repo-branch=caf-stable
+	repo sync
+	拷贝私有代码到ANDROID目录区
+生成NON-HOLS.BIN
+	python update_common_info.py
+编译Android系统
+	source build/envsetup.sh
+	lunch msm8909-userdebug
+	lunch msm8909_512-userdebug 512内存版本
+	<<choosecombo 1 msm8909 userdebug>>
+	make -j16
