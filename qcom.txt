@@ -2,4 +2,17 @@
 ~/qcom/8909_src/Q1131_msm8909/android/out/target/product/msm8909/obj/KERNEL_OBJ/scripts/dtc$ ./dtc -I dtb -O dts -o 
 ../../../../../../../../temp.dts  ../../arch/arm/boot/dts/msm8909-mtp.dtb
 
+临时关闭SElinux
+setenforce 0
+
+显示唤醒源
+dumpsys alarm
+
+android 6.0 idle 模式使能
+config_enableAutoPowerModes
+./base/core/res/res/values/config.xml:167:    
+<bool name="config_enableAutoPowerModes">false</bool
+
+
+
 
