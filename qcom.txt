@@ -13,6 +13,23 @@ config_enableAutoPowerModes
 ./base/core/res/res/values/config.xml:167:    
 <bool name="config_enableAutoPowerModes">false</bool
 
+用AM启动一个APP
+am start -n com.qualcomm.qti.launcher/.MainActivity
 
+NV打开RAMDUMP开关
 
+重启到EDL
+reboot EDL
+
+usb到EDL
+USB+ TO GND 
+
+修改不使用的GPIO配置
+boot_images/core/systemdrivers/tlmm/config/platform/TLMMChipset.xml
+
+显示LDO连接设备
+cat /sys/kernel/debug/regulator/8916_l6/consumers
+
+检查RPM状态
+cat /sys/kernel/debug/rpm_stats
 
