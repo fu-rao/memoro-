@@ -1,0 +1,106 @@
+温度控制
+
+BTM 温度控制限制门限 默认+-150度
+On boot_images/core/hwengines/tsens/config/8909/BootTempCheckBsp.c
+BTM Algorithm
+Const BootTempCheckBspTypeBootTempChecksBsp[]=
+	{
+		{/* .nUpperThesholdDegC*/150,
+		 /* .nLowerThresholdDegC*/-150
+		}
+	};
+PBL 会在启动过程中延时检查温度上下限，超范围直接到关机
+
+8909CPU内部有5个 温度控制点
+0号靠近MODEM 1号靠近CAM 2号在modem上 3号在CPU1，2之间 4号在CPU3,4之间
+
+
+代码路径
+boot_images\core\hwengines\tsens\config\<Target>\TsensBootBsp.c
+?
+For example: /* .nCriticalMin */ -35,
+			 /* .nCriticalMax */ 120
+温度超过120度 硬件直接拉PS HOLD
+
+KTM 控制
+代码在/drivers/thermal/msm_thermal.c
+配置在 arch/arm/boot/dts/msm8909.dtsi
+
+	qcom,msm-thermal {
+		compatible = "qcom,msm-thermal";
+		qcom,sensor-id = <3>;
+		qcom,poll-ms = <250>;
+		qcom,limit-temp = <60>;
+		qcom,temp-hysteresis = <10>;
+		qcom,freq-step = <2>;
+		qcom,core-limit-temp = <80>;
+		qcom,core-temp-hysteresis = <10>;
+		qcom,hotplug-temp = <97>;
+		qcom,hotplug-temp-hysteresis = <12>;
+		qcom,freq-mitigation-temp = <97>;
+		qcom,freq-mitigation-temp-hysteresis = <12>;
+		qcom,freq-mitigation-value = <400000>;
+		qcom,online-hotplug-core;
+		qcom,therm-reset-temp = <115>;
+		qcom,disable-cx-phase-ctrl;
+		qcom,disable-gfx-phase-ctrl;
+		qcom,disable-vdd-mx;
+		qcom,disable-psm;
+		qcom,disable-ocr;
+		qcom,vdd-restriction-temp = <5>;
+		qcom,vdd-restriction-temp-hysteresis = <10>;
+		vdd-dig-supply = <&pm8909_s1_floor_corner>;
+
+温控调试：
+
+使能KTM LOG
+echo 8 > /proc/sys/kernel/printk
+echo 'file msm_thermal.c +p'> sys/kernel/debug/dynamic_debug/control
+
+Thermal-Engine管理
+配置文件 /system/etc/thermal-engine.conf
+
+modem 温度管理
+
+
+Thermal engine调试使能
+#stop thermal-engine (super user mode)
+#start thermal-engine -debug & 启动调试信息
+
+adb logcat –v time –s ThermalEngine 过滤LOG
+
+adb shell thermal-engine –o 输出 CONFIG
+
+adb pull /etc/thermal-engine.conf
+adb reboot
+adb remount
+编辑文件
+adb push thermal-engine.conf/etc/
+
+检查GPU 频率
+adb shell mkdir /sys/kernel/debug
+adb shell mount -t debugfs none /sys/kernel/debug
+adb shell cat /sys/kernel/debug/clk/grp_3d_clk/rate
+
+获得SENSOR 类型
+cat /sys/class/thermal/thermal_zone*/type
+获得SENSOR 温度值
+cat /sys/class/thermal/thermal_zone*/temp
+
+获得CPU频率
+adb shell cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+adb shell cat /sys/devices/system/cpu/cpu0/cpufreq/cpu_max_freq
+adb shell cat /sys/devices/system/cpu/cpu0/cpufreq/cpu_min_freq
+
+DDR frequency
+adb shell cat /sys/kernel/debug/clk/bimc_clk/measure*2/1000000
+?
+SNOC
+adb shell cat /sys/kernel/debug/clk/snoc_clk/measure/1000000
+?
+PCNOC
+adb shell cat /sys/kernel/debug/clk/pcnoc_clk/measure/1000000
+?
+MDP frequency
+adb shell cat /sys/kernel/debug/clk/gcc_mdss_mdp_clk/measure/1000000
+
