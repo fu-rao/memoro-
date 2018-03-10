@@ -33,3 +33,8 @@ cat /sys/kernel/debug/regulator/8916_l6/consumers
 检查RPM状态
 cat /sys/kernel/debug/rpm_stats
 
+动态打开KERNEL 文件LOG
+adb shell "echo 'func %1 +p' > /sys/kernel/debug/dynamic_debug/control"
+
+
+
